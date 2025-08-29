@@ -11,16 +11,8 @@
     </cargoProject>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="20727f5b-ac03-489f-b3ef-67757356ba81" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/aether-cli/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aether-cli/src/commands/add_command.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aether-cli/src/commands/init_command.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aether-cli/src/commands/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aether-cli/src/constants.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aether-cli/src/errors.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aether-cli/src/model/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aether-cli/src/model/project_models.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="20727f5b-ac03-489f-b3ef-67757356ba81" name="Changes" comment="Bootstrap CLI and add first commands">
+      <change beforePath="$PROJECT_DIR$/aether-cli/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/aether-cli/src/main.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,11 +69,24 @@
       <option name="presentableId" value="Default" />
       <updated>1756499738760</updated>
       <workItem from="1756499739835" duration="15000" />
-      <workItem from="1756499769330" duration="4279000" />
+      <workItem from="1756499769330" duration="4675000" />
     </task>
+    <task id="LOCAL-00001" summary="Bootstrap CLI and add first commands">
+      <option name="closed" value="true" />
+      <created>1756504132846</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1756504132846</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Bootstrap CLI and add first commands" />
+    <option name="LAST_COMMIT_MESSAGE" value="Bootstrap CLI and add first commands" />
   </component>
 </project>

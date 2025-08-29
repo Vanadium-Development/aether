@@ -56,19 +56,13 @@ enum RemoteCommands {
     /// Lists all existing aether remotes
     List
 }
-fn main() {
+fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
-    match match cli.command {
+    match cli.command {
         Commands::Init => commands::init_command::execute(),
         Commands::Add { file } => commands::add_command::execute(file),
         _ => fallback_command()
-    } {
-        Ok(_) => {}
-        Err(e) => {
-            eprintln!("{:?}", e);
-            exit(1);
-        }
     }
 }
 
