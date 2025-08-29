@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -25,6 +26,15 @@ type RouteCtx struct {
 func registerApiRoutes(state *RouteCtx) {
 	http.HandleFunc("/", state.getRootHandler)
 	http.HandleFunc("/info", state.getInfoHandler)
+}
+
+func JsonContentType(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+}
+
+func RespondJson(w http.ResponseWriter, value map[string]interface{}) {
+	JsonContentType(w)
+	_ = json.NewEncoder(w).Encode(value)
 }
 
 func InitializeApi(port uint16, node state.Node) {

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Aether Node</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+20&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
+          rel="stylesheet">
+</head>
+<style>
+    body {
+        background-color: #0b0b15;
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    #v-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .jersey-20-regular {
+        font-family: "Jersey 20", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    .roboto-mono-400 {
+        font-family: "Roboto Mono", monospace;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    #logo {
+        display: block;
+        color: {{.NodeColor}};
+        font-weight: bold;
+        text-align: center;
+        font-size: 7em;
+    }
+
+    .prop-wrapper {
+        color: #ecf0f1;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 1.5em;
+        gap: 2em;
+        width: 30em;
+    }
+
+    .prop-key {
+        font-weight: bold;
+    }
+
+    .prop-val {
+        color: #8a9498;
+        font-weight: normal;
+    }
+
+    .line {
+        display: block;
+        margin-bottom: 2.5em;
+        margin-top: 1.5em;
+        width: 30em;
+        border-color: #222f3e;
+        border-style: dashed;
+        border-width: .1pt;
+    }
+</style>
+<body>
+</body>
+<div id="v-container">
+    <div id="logo" class="jersey-20-regular">
+        Aether
+    </div>
+    <div class="line"></div>
+    <div class="prop-wrapper roboto-mono-400">
+        <div class="prop-key">
+            Name
+        </div>
+        <div class="prop-val">
+            {{.Name}}
+        </div>
+    </div>
+    <div class="prop-wrapper roboto-mono-400">
+        <div class="prop-key">
+            UUID
+        </div>
+        <div class="prop-val">
+            {{.UUID}}
+        </div>
+    </div>
+    <div class="prop-wrapper roboto-mono-400">
+        <div class="prop-key">
+            Port
+        </div>
+        <div class="prop-val">
+            {{.Port}}
+        </div>
+    </div>
+</div>
+</html>

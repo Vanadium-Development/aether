@@ -9,7 +9,7 @@ import (
 
 func InitializeNode(port uint16) {
 	var nodeId, _ = uuid.NewRandom()
-	var n = state.Node{ID: nodeId, Name: "Linux Blender Node"}
+	var n = state.Node{ID: nodeId, Name: "Linux Blender Node", Color: state.RandomNodeColor()}
 
 	api.InitializeApi(port, n)
 }
