@@ -8,20 +8,31 @@ import (
 	"strconv"
 )
 
-type State struct {
-	node *state.Node
+const banner = `
+  ___       _   _               
+ / _ \     | | | |              
+/ /_\ \ ___| |_| |__   ___ _ __ 
+|  _  |/ _ \ __| '_ \ / _ \ '__|
+| | | |  __/ |_| | | |  __/ |   
+\_| |_/\___|\__|_| |_|\___|_|   
+                                `
+
+type RouteCtx struct {
+	Port uint16
+	Node *state.Node
 }
 
-func (state *State) getRoot(writer http.ResponseWriter, req *http.Request) {
-	log.Println("GET /")
-	_, _ = fmt.Fprintf(writer, "Aether node %s is up and running!", state.node.ID)
+func registerApiRoutes(state *RouteCtx) {
+	http.HandleFunc("/", state.getRootHandler)
+	http.HandleFunc("/info", state.getInfoHandler)
 }
 
 func InitializeApi(port uint16, node state.Node) {
-	s := &State{&node}
-	http.HandleFunc("/", s.getRoot)
+	s := &RouteCtx{port, &node}
+	fmt.Println(banner)
+	log.Printf("Aether node is listening on port http://localhost:%d\n", port)
 
-	log.Printf("Listening on port %d\n", port)
+	registerApiRoutes(s)
 	err := http.ListenAndServe(":"+strconv.Itoa(int(port)), nil)
 	if err != nil {
 		log.Printf("Error initializing API: %s\n", err)
