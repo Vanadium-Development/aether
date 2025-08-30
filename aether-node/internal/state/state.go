@@ -1,39 +1,48 @@
 package state
 
 import (
-	"math/rand"
+	"encoding/hex"
+	"encoding/json"
 
 	"github.com/google/uuid"
 )
 
-type RGBColor struct {
-	R uint8
-	G uint8
-	B uint8
+type Checksum []byte
+
+func (c *Checksum) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	b, err := hex.DecodeString(s)
+	if err != nil {
+		return err
+	}
+	*c = b
+	return nil
 }
 
-func rgb(r uint8, g uint8, b uint8) RGBColor {
-	return RGBColor{R: r, G: g, B: b}
+type SceneMetadata struct {
+	Checksum   Checksum `json:"checksum"`
+	FramesFrom uint16
+	FramesTo   uint16
 }
 
-var availableColors = []RGBColor{
-	rgb(52, 152, 219),  // Peter River
-	rgb(231, 76, 60),   // Alizarin
-	rgb(26, 188, 156),  // Turquoise
-	rgb(155, 89, 182),  // Amethyst
-	rgb(153, 128, 250), // Forgotten Purple
-	rgb(237, 76, 103),  // Bara Red
-	rgb(84, 109, 229),  // Cornflower
+type Scene struct {
+	Filename string
+	FilePath string
+	Metadata SceneMetadata
 }
 
-func RandomNodeColor() RGBColor {
-	return availableColors[rand.Intn(len(availableColors))]
+type State struct {
+	Scene *Scene
 }
 
 type Node struct {
 	ID    uuid.UUID
 	Name  string
 	Color RGBColor
+	State State
 }
 
 func (node *Node) NodeInfoMap() map[string]interface{} {

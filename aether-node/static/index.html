@@ -52,6 +52,10 @@
         font-size: 7em;
     }
 
+    #version {
+        color: #636e72;
+    }
+
     .prop-wrapper {
         color: #ecf0f1;
         display: flex;
@@ -74,7 +78,7 @@
 
     .line {
         display: block;
-        margin-bottom: 2.5em;
+        margin-bottom: 1.5em;
         margin-top: 1.5em;
         width: 30em;
         border-color: #222f3e;
@@ -87,6 +91,9 @@
 <div id="v-container">
     <div id="logo" class="jersey-20-regular">
         Aether
+    </div>
+    <div id="version" class="roboto-mono-400">
+        {{.Version}}
     </div>
     <div class="line"></div>
     <div class="prop-wrapper roboto-mono-400">
@@ -111,6 +118,14 @@
         </div>
         <div class="prop-val">
             {{.Port}}
+        </div>
+    </div>
+    <div class="prop-wrapper roboto-mono-400">
+        <div class="prop-key">
+            Node Version
+        </div>
+        <div class="prop-val">
+            {{.Version}}
         </div>
     </div>
 </div>

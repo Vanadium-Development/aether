@@ -2,50 +2,73 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
+	"node/internal/config"
 	"node/internal/state"
 	"strconv"
+	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
-const banner = `
-  ___       _   _               
- / _ \     | | | |              
-/ /_\ \ ___| |_| |__   ___ _ __ 
-|  _  |/ _ \ __| '_ \ / _ \ '__|
-| | | |  __/ |_| | | |  __/ |   
-\_| |_/\___|\__|_| |_|\___|_|   
-                                `
-
 type RouteCtx struct {
-	Port uint16
-	Node *state.Node
+	Port   uint16
+	Node   *state.Node
+	Config *config.NodeConfig
+}
+
+func route(pattern string, method string, contentType string, handler func(http.ResponseWriter, *http.Request)) {
+	http.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
+		var actualType string
+
+		if method == "*" {
+			goto checkContentType
+		}
+
+		if r.Method != method {
+			http.Error(w, "Method not allowed: Expected "+method+", attempted "+r.Method, http.StatusMethodNotAllowed)
+			return
+		}
+
+	checkContentType:
+		if contentType == "*" {
+			goto invokeHandler
+		}
+
+		if actualType = r.Header.Get("Content-Type"); actualType == "" {
+			actualType = "(empty)"
+		}
+
+		if !strings.HasPrefix(actualType, "multipart/form-data") {
+			http.Error(w, "Expected "+contentType+", received "+actualType, http.StatusBadRequest)
+			return
+		}
+
+	invokeHandler:
+		handler(w, r)
+	})
 }
 
 func registerApiRoutes(state *RouteCtx) {
-	http.HandleFunc("/", state.getRootHandler)
-	http.HandleFunc("/info", state.getInfoHandler)
-}
-
-func JsonContentType(w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json")
+	route("/", http.MethodGet, "*", state.getRootHandler)
+	route("/info", http.MethodGet, "*", state.getInfoHandler)
+	route("/commit", http.MethodPost, "multipart/form-data", state.postCommitHandler)
 }
 
 func RespondJson(w http.ResponseWriter, value map[string]interface{}) {
-	JsonContentType(w)
+	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(value)
 }
 
-func InitializeApi(port uint16, node state.Node) {
-	s := &RouteCtx{port, &node}
-	fmt.Println(banner)
-	log.Printf("Aether node is listening on port http://localhost:%d\n", port)
+func InitializeApi(port uint16, node state.Node, cfg config.NodeConfig) {
+	s := &RouteCtx{Port: port, Node: &node, Config: &cfg}
+
+	logrus.Infof("Aether node is listening on http://localhost:%d\n", port)
 
 	registerApiRoutes(s)
 	err := http.ListenAndServe(":"+strconv.Itoa(int(port)), nil)
 	if err != nil {
-		log.Printf("Error initializing API: %s\n", err)
+		logrus.Errorf("Error initializing API: %s\n", err)
 		return
 	}
 }

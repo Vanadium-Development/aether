@@ -1,0 +1,7 @@
+[Node]
+node_name = "Renderer Node"
+port = 1507
+
+[Data]
+temp_directory = "temp"
+scenes_directory = "scenes"
