@@ -50,7 +50,7 @@ func processFile(ctx *RouteCtx, fileSize int64, filename string, file multipart.
 	logrus.Debugf("File \"%s\" is now \"%s\"", filename, randomFilename)
 
 	// Store the received file in a temp directory
-	bar := util.ProgressBar(fileSize, "TRANS ")
+	bar := util.ByteProgressBar(fileSize, "TRANS ")
 
 	tmpFilePath := ctx.Config.Data.TempDirectory + "/" + randomFilename
 	tmpFile, err := os.Create(tmpFilePath)

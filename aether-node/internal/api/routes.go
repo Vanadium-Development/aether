@@ -164,11 +164,11 @@ func (ctx *RouteCtx) postRenderHandler(writer http.ResponseWriter, req *http.Req
 
 	var scene *state.SceneMetadata
 
-	if scene = ctx.SceneStore.FindSceneById(*request.ID); scene != nil {
+	if scene = ctx.SceneStore.FindSceneById(*request.ID); scene == nil {
 		http.Error(writer, "A scene with this ID does not exist", http.StatusBadRequest)
 		logrus.Debug("Could not find a scene with the requested ID (%s)\n", request.ID)
 		return
 	}
 
-	rendering.InitializeRenderProcess(ctx, scene, &request)
+	rendering.InitializeRenderProcess(ctx.Config, scene, &request)
 }

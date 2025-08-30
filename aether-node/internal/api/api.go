@@ -34,7 +34,7 @@ func route(pattern string, method string, contentType string, handler func(http.
 			actualType = "(empty)"
 		}
 
-		if !strings.HasPrefix(actualType, "multipart/form-data") {
+		if !strings.HasPrefix(actualType, contentType) {
 			http.Error(w, "Expected "+contentType+", received "+actualType, http.StatusBadRequest)
 			return
 		}

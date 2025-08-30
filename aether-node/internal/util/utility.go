@@ -2,6 +2,7 @@ package util
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"os"
@@ -19,11 +20,26 @@ func CloseFile(file multipart.File) {
 	}
 }
 
-func ProgressBar(fileSize int64, description string) *progressbar.ProgressBar {
+func ByteProgressBar(fileSize int64, description string) *progressbar.ProgressBar {
 	return progressbar.NewOptions(int(fileSize),
 		progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionShowBytes(true),
+		progressbar.OptionSetWidth(20),
+		progressbar.OptionSetDescription("[cyan]"+description+"[reset]"),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[light_green]█[reset]",
+			SaucerPadding: "[reset]█",
+			BarStart:      "",
+			BarEnd:        "",
+		}))
+}
+
+func SyntheticProgressBar(count int, description string) *progressbar.ProgressBar {
+	return progressbar.NewOptions(count,
+		progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionShowCount(),
 		progressbar.OptionSetWidth(20),
 		progressbar.OptionSetDescription("[cyan]"+description+"[reset]"),
 		progressbar.OptionSetTheme(progressbar.Theme{
@@ -41,11 +57,15 @@ func DecompressZip(src string, dst string) error {
 	}
 	defer reader.Close()
 
+	bar := SyntheticProgressBar(len(reader.File), "UNZIP")
+	bar.RenderBlank()
+
 	for _, zipFile := range reader.File {
 		path := filepath.Join(dst, zipFile.Name)
 
 		if zipFile.FileInfo().IsDir() {
 			os.MkdirAll(path, 0777)
+			bar.Add(1)
 			continue
 		}
 
@@ -72,9 +92,12 @@ func DecompressZip(src string, dst string) error {
 			return err
 		}
 
+		bar.Add(1)
 		dstFile.Close()
 		srcReader.Close()
 	}
+
+	fmt.Println()
 
 	return nil
 }
