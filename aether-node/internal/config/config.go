@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"reflect"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
@@ -12,8 +13,10 @@ const configPath = "config.toml"
 
 type NodeConfig struct {
 	Data struct {
-		TempDirectory   string `toml:"temp_directory"`
-		ScenesDirectory string `toml:"scenes_directory"`
+		TempDirectory      string `toml:"temp_directory"`
+		ScenesDirectory    string `toml:"scenes_directory"`
+		SceneIndex         string `toml:"scene_index"`
+		WorkspaceDirectory string `toml:"workspace_directory"`
 	} `toml:"Data"`
 	Node struct {
 		Name string `toml:"node_name"`
@@ -44,6 +47,10 @@ func ParseNodeConfig() NodeConfig {
 	validateConfig(cfg.Node)
 	validateConfig(cfg.Data)
 
+	if !strings.HasSuffix(cfg.Data.SceneIndex, ".json") {
+		logrus.Fatalf("Scene index must be a JSON file, got \"%s\".", cfg.Data.SceneIndex)
+	}
+
 	return cfg
 }
 
@@ -52,11 +59,12 @@ func ensureFolder(path string) {
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		logrus.Debugf("Creating directory: %s", path)
-		os.MkdirAll(path, 0755)
+		os.MkdirAll(path, 0o755)
 	}
 }
 
 func (cfg *NodeConfig) EnsureFolders() {
 	ensureFolder(cfg.Data.TempDirectory)
 	ensureFolder(cfg.Data.ScenesDirectory)
+	ensureFolder(cfg.Data.WorkspaceDirectory)
 }

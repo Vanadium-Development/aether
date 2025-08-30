@@ -1,51 +1,43 @@
 package state
 
 import (
-	"encoding/hex"
-	"encoding/json"
+	"node/internal/checksum"
+	"sync"
 
 	"github.com/google/uuid"
 )
 
-type Checksum []byte
-
-func (c *Checksum) UnmarshalJSON(data []byte) error {
-	var s string
-	if err := json.Unmarshal(data, &s); err != nil {
-		return err
-	}
-	b, err := hex.DecodeString(s)
-	if err != nil {
-		return err
-	}
-	*c = b
-	return nil
-}
-
 type SceneMetadata struct {
-	Checksum   Checksum `json:"checksum"`
-	FramesFrom uint16
-	FramesTo   uint16
-}
-
-type Scene struct {
-	Filename string
-	FilePath string
-	Metadata SceneMetadata
+	Checksum     checksum.Checksum `json:"checksum"`
+	CreatedAt    int64             `json:"created_at"`
+	Filename     string            `json:"filename"`
+	OriginalName string            `json:"original_name"`
+	ID           uuid.UUID         `json:"id"`
 }
 
 type State struct {
-	Scene *Scene
+	Scene      *SceneMetadata
+	UploadLock sync.Mutex
+	RenderLock sync.Mutex
 }
 
-type Node struct {
-	ID    uuid.UUID
-	Name  string
-	Color RGBColor
-	State State
+type Platform int
+
+const (
+	Windows Platform = iota
+	Unix
+)
+
+type AetherNode struct {
+	ID       uuid.UUID
+	Name     string
+	Port     uint16
+	Color    RGBColor
+	State    State
+	Platform Platform
 }
 
-func (node *Node) NodeInfoMap() map[string]interface{} {
+func (node *AetherNode) NodeInfoMap() map[string]interface{} {
 	return map[string]interface{}{
 		"id":   node.ID.String(),
 		"name": node.Name,

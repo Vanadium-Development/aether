@@ -5,3 +5,5 @@ port = 1507
 [Data]
 temp_directory = "temp"
 scenes_directory = "scenes"
+workspace_directory = "workspace"
+scene_index = "scenes.json"
