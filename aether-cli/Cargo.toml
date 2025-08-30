@@ -1,0 +1,11 @@
+[package]
+name = "aether-cli"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5.46", features = ["derive"] }
+serde = {version = "1.0.219", features = ["derive"]}
+serde_json = { version = "1.0.140", features = ["std"] }
+anyhow = { version = "1.0.98" , features = ["backtrace"]}
+sha256 = "1.6.0"
