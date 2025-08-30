@@ -144,5 +144,31 @@ func (ctx *RouteCtx) postRenderHandler(writer http.ResponseWriter, req *http.Req
 		return
 	}
 
-	rendering.ExecuteRenderScript()
+	if request.FrameStart == nil {
+		http.Error(writer, "Expected required field \"frame_start\" as part of render request", http.StatusBadRequest)
+		logrus.Debugf("Render request did not contain required field \"frame_start\"\n")
+		return
+	}
+
+	if request.FrameEnd == nil {
+		http.Error(writer, "Expected required field \"frame_end\" as part of render request", http.StatusBadRequest)
+		logrus.Debugf("Render request did not contain required field \"frame_end\"\n")
+		return
+	}
+
+	if request.ID == nil {
+		http.Error(writer, "Expected required field \"id\" as part of render request", http.StatusBadRequest)
+		logrus.Debugf("Render request did not contain required field \"id\"\n")
+		return
+	}
+
+	var scene *state.SceneMetadata
+
+	if scene = ctx.SceneStore.FindSceneById(*request.ID); scene != nil {
+		http.Error(writer, "A scene with this ID does not exist", http.StatusBadRequest)
+		logrus.Debug("Could not find a scene with the requested ID (%s)\n", request.ID)
+		return
+	}
+
+	rendering.InitializeRenderProcess(ctx, scene, &request)
 }

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,6 +27,17 @@ func (store *SceneIndex) FindSceneByChecksum(checksum checksum.Checksum) *state.
 	for i := range store.Scenes {
 		scene := store.Scenes[i]
 		if scene.Checksum.IsSame(&checksum) {
+			return &scene
+		}
+	}
+
+	return nil
+}
+
+func (store *SceneIndex) FindSceneById(id uuid.UUID) *state.SceneMetadata {
+	for i := range store.Scenes {
+		scene := store.Scenes[i]
+		if scene.ID == id {
 			return &scene
 		}
 	}

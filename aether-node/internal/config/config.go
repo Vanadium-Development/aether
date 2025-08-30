@@ -59,7 +59,7 @@ func ensureFolder(path string) {
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		logrus.Debugf("Creating directory: %s", path)
-		os.MkdirAll(path, 0o755)
+		os.MkdirAll(path, 0755)
 	}
 }
 
