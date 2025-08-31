@@ -1,6 +1,7 @@
 [Node]
 node_name = "Renderer Node"
 port = 1507
+blender = "/Applications/Blender.app/Contents/MacOS/Blender"
 
 [Data]
 temp_directory = "temp"

@@ -19,8 +19,9 @@ type NodeConfig struct {
 		WorkspaceDirectory string `toml:"workspace_directory"`
 	} `toml:"Data"`
 	Node struct {
-		Name string `toml:"node_name"`
-		Port uint16 `toml:"port"`
+		Name    string `toml:"node_name"`
+		Port    uint16 `toml:"port"`
+		Blender string `toml:"blender"`
 	} `toml:"Node"`
 }
 

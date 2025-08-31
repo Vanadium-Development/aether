@@ -132,33 +132,40 @@ func (ctx *RouteCtx) postUploadHandler(writer http.ResponseWriter, req *http.Req
 func (ctx *RouteCtx) postRenderHandler(writer http.ResponseWriter, req *http.Request) {
 	if !ctx.Node.State.RenderLock.TryLock() {
 		http.Error(writer, "Aether node is currently rendering.", http.StatusServiceUnavailable)
-		logrus.Debug("Refusing incoming rendering request (Handler is busy).")
+		logrus.Debug("Refusing incoming rendering request (Renderer is busy).")
 		return
 	}
-	defer ctx.Node.State.RenderLock.Unlock()
 
 	var request models.RenderRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		http.Error(writer, "Could not parse JSON render request", http.StatusBadRequest)
 		logrus.Debugf("Could not parse JSON render request: %s\n", err)
+
+		ctx.Node.State.RenderLock.Unlock()
 		return
 	}
 
 	if request.FrameStart == nil {
 		http.Error(writer, "Expected required field \"frame_start\" as part of render request", http.StatusBadRequest)
 		logrus.Debugf("Render request did not contain required field \"frame_start\"\n")
+
+		ctx.Node.State.RenderLock.Unlock()
 		return
 	}
 
 	if request.FrameEnd == nil {
 		http.Error(writer, "Expected required field \"frame_end\" as part of render request", http.StatusBadRequest)
 		logrus.Debugf("Render request did not contain required field \"frame_end\"\n")
+
+		ctx.Node.State.RenderLock.Unlock()
 		return
 	}
 
 	if request.ID == nil {
 		http.Error(writer, "Expected required field \"id\" as part of render request", http.StatusBadRequest)
 		logrus.Debugf("Render request did not contain required field \"id\"\n")
+
+		ctx.Node.State.RenderLock.Unlock()
 		return
 	}
 
@@ -167,8 +174,21 @@ func (ctx *RouteCtx) postRenderHandler(writer http.ResponseWriter, req *http.Req
 	if scene = ctx.SceneStore.FindSceneById(*request.ID); scene == nil {
 		http.Error(writer, "A scene with this ID does not exist", http.StatusBadRequest)
 		logrus.Debug("Could not find a scene with the requested ID (%s)\n", request.ID)
+
+		ctx.Node.State.RenderLock.Unlock()
 		return
 	}
 
-	rendering.InitializeRenderProcess(ctx.Config, scene, &request)
+	ctx.Node.State.Scene = scene
+
+	err := rendering.InitializeRenderProcess(ctx.Config, &ctx.Node.State, &request)
+	if err != nil {
+		http.Error(writer, "Could not invoke renderer", http.StatusInternalServerError)
+		logrus.Debugf("Could not invoke renderer: %s\n", err)
+
+		ctx.Node.State.RenderLock.Unlock()
+		return
+	}
+
+	// Note: RenderLock is still locked if InitializeRenderProcess succeeded!
 }

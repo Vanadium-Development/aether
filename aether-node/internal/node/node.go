@@ -58,6 +58,8 @@ func InitializeNode() {
 		logrus.Infof("Aether node is running on Unix")
 	}
 
+	logrus.Infof("Using blender path: %s\n", cfg.Node.Blender)
+
 	// Make sure all required directories exist
 	cfg.EnsureFolders()
 
