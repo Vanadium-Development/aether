@@ -47,9 +47,11 @@ func route(pattern string, method string, contentType string, handler func(http.
 func registerApiRoutes(state *RouteCtx) {
 	route("/", http.MethodGet, "*", state.getRootHandler)
 	route("/info", http.MethodGet, "*", state.getInfoHandler)
+	route("/scenes", http.MethodGet, "*", state.getScenesHandler)
 	route("/upload", http.MethodPost, "multipart/form-data", state.postUploadHandler)
 	route("/render", http.MethodPost, "application/json", state.postRenderHandler)
 	route("/status", http.MethodGet, "*", state.getStatusHandler)
+	route("/renders", http.MethodGet, "*", state.getRenderResult)
 }
 
 func RespondJson(w http.ResponseWriter, value map[string]interface{}) {

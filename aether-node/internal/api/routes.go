@@ -7,13 +7,17 @@ import (
 	"net/http"
 	"node/internal/banner"
 	"node/internal/config"
+	"node/internal/dto/id"
 	"node/internal/dto/progress"
 	"node/internal/dto/render"
+	"node/internal/dto/scenes"
 	"node/internal/persistence"
 	"node/internal/rendering"
 	"node/internal/state"
 	"node/internal/util"
 	"node/internal/version"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -71,6 +75,12 @@ fallback:
 // Return information about current node as JSON
 func (ctx *RouteCtx) getInfoHandler(writer http.ResponseWriter, req *http.Request) {
 	RespondJson(writer, ctx.Node.NodeInfoMap())
+}
+
+// Retrieve a list of scenes stored in the scene index
+func (ctx *RouteCtx) getScenesHandler(writer http.ResponseWriter, req *http.Request) {
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(scenes.SceneIndexResponseFromIndex(&ctx.SceneStore))
 }
 
 // Upload compressed scene file and store it in the scene index
@@ -211,4 +221,46 @@ func (ctx *RouteCtx) getStatusHandler(writer http.ResponseWriter, req *http.Requ
 	renderState := ctx.Node.State.RendererState
 	_ = json.NewEncoder(writer).Encode(progress.StatusResponseFromRenderState(renderState))
 	return
+}
+
+// Retrieve the last render result of a given scene
+func (ctx *RouteCtx) getRenderResult(writer http.ResponseWriter, req *http.Request) {
+	var request id.IDRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		http.Error(writer, "Could not parse JSON request", http.StatusBadRequest)
+		logrus.Debugf("Could not parse JSON request: %s\n", err)
+		return
+	}
+
+	filename := request.ID.String() + ".zip"
+	path := filepath.Join(ctx.Config.Data.OutputDirectory, filename)
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		http.Error(writer, "A last render result does not exist for this scene", http.StatusNotFound)
+		logrus.Debugf("Render result does not exist: %s\n", path)
+		return
+	}
+
+	f, err := os.Open(path)
+	if err != nil {
+		http.Error(writer, "Could not open file for reading", http.StatusInternalServerError)
+		logrus.Debugf("Could not open file for reading (%s): %s\n", path, err)
+		return
+	}
+	defer f.Close()
+
+	info, err := f.Stat()
+	if err != nil {
+		http.Error(writer, "Could not stat file", http.StatusInternalServerError)
+		logrus.Debugf("Could not stat file (%s): %s\n", path, err)
+		return
+	}
+
+	logrus.Debugf("Returning render result for scene: %s\n", request.ID)
+
+	writer.Header().Set("Content-Type", "application/zip")
+	writer.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+
+	http.ServeContent(writer, req, filename, info.ModTime(), f)
 }

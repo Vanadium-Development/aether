@@ -17,6 +17,7 @@ type NodeConfig struct {
 		ScenesDirectory    string `toml:"scenes_directory"`
 		SceneIndex         string `toml:"scene_index"`
 		WorkspaceDirectory string `toml:"workspace_directory"`
+		OutputDirectory    string `toml:"output_directory"`
 	} `toml:"Data"`
 	Node struct {
 		Name    string `toml:"node_name"`
@@ -68,4 +69,5 @@ func (cfg *NodeConfig) EnsureFolders() {
 	ensureFolder(cfg.Data.TempDirectory)
 	ensureFolder(cfg.Data.ScenesDirectory)
 	ensureFolder(cfg.Data.WorkspaceDirectory)
+	ensureFolder(cfg.Data.OutputDirectory)
 }

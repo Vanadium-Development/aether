@@ -78,7 +78,7 @@ func parseTime(s string) float64 {
 	return seconds
 }
 
-func parseBlenderOutput(line string, bar *progressbar.ProgressBar) (ok bool, frame int, elapsed float64, remaining float64, progress float64) {
+func parseBlenderOutput(line string) (ok bool, frame int, elapsed float64, remaining float64, progress float64) {
 	progressRe := regexp.MustCompile(`Fra:(\d+).*Time:(\d+:\d+.\d+).*Remaining:(\d+:\d+.\d+)`)
 
 	matches := progressRe.FindStringSubmatch(line)
@@ -101,12 +101,35 @@ func parseBlenderOutput(line string, bar *progressbar.ProgressBar) (ok bool, fra
 	}
 
 	framePercent := (timeElapsed / (timeElapsed + timeRemaining)) * 100
-	bar.Set(int(framePercent))
 
 	return true, currFrame, timeElapsed, timeRemaining, framePercent
 }
 
-// TODO Write to history log!
+func collectResults(cfg *config.NodeConfig, aetherDir string, req *render.RenderRequest) error {
+	dst := filepath.Join(cfg.Data.OutputDirectory, req.ID.String()+".zip")
+
+	// Remove previous results file
+	_ = os.RemoveAll(dst)
+
+	err := util.CompressZip(aetherDir, dst)
+	if err != nil {
+		return err
+	}
+
+	logrus.Infof("Collected render results to: %s", dst)
+
+	// Delete workspace directory
+	path := filepath.Join(cfg.Data.WorkspaceDirectory, req.ID.String())
+	err = os.RemoveAll(path)
+	if err != nil {
+		logrus.Errorf("Could not remove workspace directory (%s): %s\n", path, err)
+		return err
+	}
+
+	logrus.Debugf("Removed workspace directory: %s", path)
+	return nil
+}
+
 func invokeBlender(file string, aetherDir string, state *state.State, cfg *config.NodeConfig, req *render.RenderRequest) {
 	// Mark the node as not busy once this function exits
 	defer state.RenderLock.Unlock()
@@ -116,7 +139,7 @@ func invokeBlender(file string, aetherDir string, state *state.State, cfg *confi
 		"-b", file,
 		"-s", strconv.Itoa(int(*req.FrameStart)),
 		"-e", strconv.Itoa(int(*req.FrameEnd)),
-		"-o", filepath.Join(aetherDir, "frame_####"),
+		"-o", filepath.Join(aetherDir, "aether-frame_####"),
 		"-a",
 	)
 
@@ -138,15 +161,29 @@ func invokeBlender(file string, aetherDir string, state *state.State, cfg *confi
 
 	scanner := bufio.NewScanner(stdout)
 
-	progressBar := util.SyntheticProgressBar(100, "BLEND")
+	var bar *progressbar.ProgressBar = nil
+	lastFrame := -1
 
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		ok, frame, elapsed, remaining, progress := parseBlenderOutput(line, progressBar)
+		ok, frame, elapsed, remaining, progress := parseBlenderOutput(line)
 		if !ok {
 			continue
 		}
+
+		if lastFrame != frame {
+			// Make sure all frames end on 100%
+			if bar != nil {
+				bar.Set(100)
+				fmt.Println()
+			}
+			lastFrame = frame
+			bar = util.SyntheticProgressBar(100, "FRAME "+strconv.Itoa(frame))
+			bar.RenderBlank()
+		}
+
+		bar.Set(int(progress))
 
 		state.RendererState.FramePercent = progress
 		state.RendererState.CurrentFrame = frame
@@ -160,8 +197,22 @@ func invokeBlender(file string, aetherDir string, state *state.State, cfg *confi
 		return
 	}
 
+	// Make sure the last frame also ends on 100%
+	if bar != nil {
+		bar.Set(100)
+		fmt.Println()
+	}
+
 	state.RendererState = nil
-	logrus.Debugf("\nBlender task finished successfully!")
+	logrus.Debugf("Blender task finished successfully. Preparing result set")
+
+	err = collectResults(cfg, aetherDir, req)
+	if err != nil {
+		logrus.Errorf("Could not collect results: %s\n", err)
+		return
+	}
+
+	logrus.Infof("Task completed successfully.")
 }
 
 func findBlendFile(cfg *config.NodeConfig, req *render.RenderRequest) string {

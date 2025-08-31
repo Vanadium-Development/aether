@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/k0kubun/go-ansi"
 	"github.com/schollz/progressbar/v3"
@@ -26,9 +27,9 @@ func ByteProgressBar(fileSize int64, description string) *progressbar.ProgressBa
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionShowBytes(true),
 		progressbar.OptionSetWidth(50),
-		progressbar.OptionSetDescription("[cyan]"+description+"[reset]"),
+		progressbar.OptionSetDescription("[light_cyan]"+description+"[reset]"),
 		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "[light_blue]█[reset]",
+			Saucer:        "[light_green]█[reset]",
 			SaucerPadding: "[reset]█",
 			BarStart:      "",
 			BarEnd:        "",
@@ -42,13 +43,62 @@ func SyntheticProgressBar(count int, description string) *progressbar.ProgressBa
 		progressbar.OptionSetPredictTime(false),
 		progressbar.OptionSetElapsedTime(true),
 		progressbar.OptionSetWidth(50),
-		progressbar.OptionSetDescription("[light_gray]"+description+"[reset]"),
+		progressbar.OptionSetDescription("[light_blue]"+description+"[reset]"),
 		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "[light_blue]█[reset]",
+			Saucer:        "[light_red]█[reset]",
 			SaucerPadding: "[reset]█",
 			BarStart:      "",
 			BarEnd:        "",
 		}))
+}
+
+func CompressZip(src string, dstZip string) error {
+	zipFile, err := os.Create(dstZip)
+	if err != nil {
+		return err
+	}
+	defer zipFile.Close()
+
+	writer := zip.NewWriter(zipFile)
+	defer writer.Close()
+
+	err = filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+
+		// Get Relative Path
+		relPath, err := filepath.Rel(src, path)
+		if err != nil {
+			return err
+		}
+
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+		header.Name = relPath
+
+		entryWriter, err := writer.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(entryWriter, file)
+		file.Close()
+
+		return err
+	})
+
+	return err
 }
 
 func DecompressZip(src string, dst string) error {
@@ -63,6 +113,12 @@ func DecompressZip(src string, dst string) error {
 
 	for _, zipFile := range reader.File {
 		path := filepath.Join(dst, zipFile.Name)
+
+		if strings.HasPrefix(strings.ToLower(zipFile.Name), "__macosx/") ||
+			strings.HasSuffix(strings.ToLower(zipFile.Name), ".ds_store") {
+			bar.Add(1)
+			continue
+		}
 
 		if zipFile.FileInfo().IsDir() {
 			os.MkdirAll(path, 0777)

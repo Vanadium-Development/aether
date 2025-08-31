@@ -5,17 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b396c37a-bdba-4cb2-897d-64b8a86526ec" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/internal/dto/progress/status_response.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/dto/id/id_request.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/dto/scenes/scenes_response.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.toml" beforeDir="false" afterPath="$PROJECT_DIR$/config.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/api/api.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/api/api.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/api/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/api/routes.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/models/render_request.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/dto/render/render_request.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/node/node.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/node/node.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/config/config.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/rendering/render_job.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/rendering/render_job.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/state/color.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/util/color.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/state/state.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/state/state.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/util/utility.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/util/utility.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
