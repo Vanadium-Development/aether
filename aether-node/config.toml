@@ -1,7 +1,11 @@
 [Node]
 node_name = "Renderer Node"
 port = 1507
+blender = "/Applications/Blender.app/Contents/MacOS/Blender"
 
 [Data]
 temp_directory = "temp"
 scenes_directory = "scenes"
+workspace_directory = "workspace"
+output_directory = "outputs"
+scene_index = "scenes.json"

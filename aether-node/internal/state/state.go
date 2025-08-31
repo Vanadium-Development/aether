@@ -1,51 +1,54 @@
 package state
 
 import (
-	"encoding/hex"
-	"encoding/json"
+	"node/internal/checksum"
+	"node/internal/dto/render"
+	"node/internal/util"
+	"sync"
 
 	"github.com/google/uuid"
 )
 
-type Checksum []byte
-
-func (c *Checksum) UnmarshalJSON(data []byte) error {
-	var s string
-	if err := json.Unmarshal(data, &s); err != nil {
-		return err
-	}
-	b, err := hex.DecodeString(s)
-	if err != nil {
-		return err
-	}
-	*c = b
-	return nil
-}
-
 type SceneMetadata struct {
-	Checksum   Checksum `json:"checksum"`
-	FramesFrom uint16
-	FramesTo   uint16
+	Checksum     checksum.Checksum `json:"checksum"`
+	CreatedAt    int64             `json:"created_at"`
+	Filename     string            `json:"filename"`
+	OriginalName string            `json:"original_name"`
+	ID           uuid.UUID         `json:"id"`
 }
 
-type Scene struct {
-	Filename string
-	FilePath string
-	Metadata SceneMetadata
+type RendererState struct {
+	Scene         SceneMetadata
+	Request       render.RenderRequest
+	CurrentFrame  int
+	FramePercent  float64
+	TimeElapsed   float64
+	TimeRemaining float64
 }
 
 type State struct {
-	Scene *Scene
+	RendererState *RendererState
+	UploadLock    sync.Mutex
+	RenderLock    sync.Mutex
 }
 
-type Node struct {
-	ID    uuid.UUID
-	Name  string
-	Color RGBColor
-	State State
+type Platform int
+
+const (
+	Windows Platform = iota
+	Unix
+)
+
+type AetherNode struct {
+	ID       uuid.UUID
+	Name     string
+	Port     uint16
+	Color    util.RGBColor
+	State    State
+	Platform Platform
 }
 
-func (node *Node) NodeInfoMap() map[string]interface{} {
+func (node *AetherNode) NodeInfoMap() map[string]interface{} {
 	return map[string]interface{}{
 		"id":   node.ID.String(),
 		"name": node.Name,

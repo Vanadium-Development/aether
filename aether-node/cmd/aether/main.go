@@ -14,6 +14,5 @@ func main() {
 		TimestampFormat: "2006-01-02 : 15:04:05",
 	})
 	logrus.SetLevel(logrus.DebugLevel)
-
-	node.InitializeNode(1507)
+	node.InitializeNode()
 }

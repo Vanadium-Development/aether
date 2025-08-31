@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"reflect"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
@@ -12,12 +13,16 @@ const configPath = "config.toml"
 
 type NodeConfig struct {
 	Data struct {
-		TempDirectory   string `toml:"temp_directory"`
-		ScenesDirectory string `toml:"scenes_directory"`
+		TempDirectory      string `toml:"temp_directory"`
+		ScenesDirectory    string `toml:"scenes_directory"`
+		SceneIndex         string `toml:"scene_index"`
+		WorkspaceDirectory string `toml:"workspace_directory"`
+		OutputDirectory    string `toml:"output_directory"`
 	} `toml:"Data"`
 	Node struct {
-		Name string `toml:"node_name"`
-		Port uint16 `toml:"port"`
+		Name    string `toml:"node_name"`
+		Port    uint16 `toml:"port"`
+		Blender string `toml:"blender"`
 	} `toml:"Node"`
 }
 
@@ -44,6 +49,10 @@ func ParseNodeConfig() NodeConfig {
 	validateConfig(cfg.Node)
 	validateConfig(cfg.Data)
 
+	if !strings.HasSuffix(cfg.Data.SceneIndex, ".json") {
+		logrus.Fatalf("Scene index must be a JSON file, got \"%s\".", cfg.Data.SceneIndex)
+	}
+
 	return cfg
 }
 
@@ -59,4 +68,6 @@ func ensureFolder(path string) {
 func (cfg *NodeConfig) EnsureFolders() {
 	ensureFolder(cfg.Data.TempDirectory)
 	ensureFolder(cfg.Data.ScenesDirectory)
+	ensureFolder(cfg.Data.WorkspaceDirectory)
+	ensureFolder(cfg.Data.OutputDirectory)
 }
