@@ -6,6 +6,7 @@ import (
 	"node/internal/banner"
 	"node/internal/config"
 	"node/internal/state"
+	"node/internal/util"
 	"node/internal/version"
 	"runtime"
 	"strings"
@@ -44,12 +45,12 @@ func InitializeNode() {
 		ID:       nodeId,
 		Name:     cfg.Node.Name,
 		Port:     port,
-		Color:    state.RandomNodeColor(),
+		Color:    util.RandomNodeColor(),
 		Platform: establishPlatform(),
 		State: state.State{
-			UploadLock: sync.Mutex{},
-			RenderLock: sync.Mutex{},
-			Scene:      nil,
+			UploadLock:    sync.Mutex{},
+			RenderLock:    sync.Mutex{},
+			RendererState: nil,
 		}}
 
 	if n.Platform == state.Windows {

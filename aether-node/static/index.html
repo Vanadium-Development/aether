@@ -60,7 +60,7 @@
         color: #ecf0f1;
         display: flex;
         flex-direction: row;
-        align-items: center;
+        align-items: start;
         justify-content: space-between;
         font-size: 1.5em;
         gap: 2em;
@@ -69,11 +69,14 @@
 
     .prop-key {
         font-weight: bold;
+        white-space: nowrap;
     }
 
     .prop-val {
         color: #8a9498;
         font-weight: normal;
+        overflow-wrap: anywhere;
+        text-align: right;
     }
 
     .line {
@@ -84,6 +87,12 @@
         border-color: #222f3e;
         border-style: dashed;
         border-width: .1pt;
+    }
+
+    .status {
+        margin-top: 1em;
+        font-size: 2em;
+        color: #f6b93b;
     }
 </style>
 <body>
@@ -127,6 +136,17 @@
         <div class="prop-val">
             {{.Version}}
         </div>
+    </div>
+    <div class="prop-wrapper roboto-mono-400">
+        <div class="prop-key">
+            Blender Path
+        </div>
+        <div class="prop-val">
+            {{.Blender}}
+        </div>
+    </div>
+    <div class="status roboto-mono-400">
+        {{.Status}}
     </div>
 </div>
 </html>

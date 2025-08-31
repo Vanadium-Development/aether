@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"node/internal/banner"
 	"node/internal/config"
-	"node/internal/models"
+	"node/internal/dto/progress"
+	"node/internal/dto/render"
 	"node/internal/persistence"
 	"node/internal/rendering"
 	"node/internal/state"
@@ -36,6 +37,11 @@ func (ctx *RouteCtx) handleFallbackInfoPage(writer http.ResponseWriter, request 
 func (ctx *RouteCtx) getRootHandler(writer http.ResponseWriter, req *http.Request) {
 	tmpl, err := template.ParseFiles("static/index.html")
 
+	var status string = "IDLE"
+	if ctx.Node.State.RendererState != nil {
+		status = "RENDERING"
+	}
+
 	if err != nil {
 		goto fallback
 	}
@@ -46,6 +52,8 @@ func (ctx *RouteCtx) getRootHandler(writer http.ResponseWriter, req *http.Reques
 		"Port":      strconv.Itoa(int(ctx.Node.Port)),
 		"NodeColor": template.CSS(fmt.Sprintf("rgb(%d,%d,%d)", ctx.Node.Color.R, ctx.Node.Color.G, ctx.Node.Color.B)),
 		"Version":   version.AetherVersion,
+		"Blender":   ctx.Config.Node.Blender,
+		"Status":    status,
 	})
 
 	if err != nil {
@@ -129,6 +137,7 @@ func (ctx *RouteCtx) postUploadHandler(writer http.ResponseWriter, req *http.Req
 	})
 }
 
+// Start a rendering job on a previously uploaded scene
 func (ctx *RouteCtx) postRenderHandler(writer http.ResponseWriter, req *http.Request) {
 	if !ctx.Node.State.RenderLock.TryLock() {
 		http.Error(writer, "Aether node is currently rendering.", http.StatusServiceUnavailable)
@@ -136,7 +145,7 @@ func (ctx *RouteCtx) postRenderHandler(writer http.ResponseWriter, req *http.Req
 		return
 	}
 
-	var request models.RenderRequest
+	var request render.RenderRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		http.Error(writer, "Could not parse JSON render request", http.StatusBadRequest)
 		logrus.Debugf("Could not parse JSON render request: %s\n", err)
@@ -179,16 +188,27 @@ func (ctx *RouteCtx) postRenderHandler(writer http.ResponseWriter, req *http.Req
 		return
 	}
 
-	ctx.Node.State.Scene = scene
+	// This is where we create the RenderState for the first time
+	ctx.Node.State.RendererState = &state.RendererState{Scene: *scene, Request: request, CurrentFrame: 0, FramePercent: 0.0}
 
 	err := rendering.InitializeRenderProcess(ctx.Config, &ctx.Node.State, &request)
 	if err != nil {
 		http.Error(writer, "Could not invoke renderer", http.StatusInternalServerError)
 		logrus.Debugf("Could not invoke renderer: %s\n", err)
 
+		ctx.Node.State.RendererState = nil
 		ctx.Node.State.RenderLock.Unlock()
 		return
 	}
 
+	writer.Write([]byte("OK"))
 	// Note: RenderLock is still locked if InitializeRenderProcess succeeded!
+}
+
+// Retrieve information about the current rendering job
+func (ctx *RouteCtx) getStatusHandler(writer http.ResponseWriter, req *http.Request) {
+	writer.Header().Set("Content-Type", "application/json")
+	renderState := ctx.Node.State.RendererState
+	_ = json.NewEncoder(writer).Encode(progress.StatusResponseFromRenderState(renderState))
+	return
 }

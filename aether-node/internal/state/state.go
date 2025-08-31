@@ -2,6 +2,8 @@ package state
 
 import (
 	"node/internal/checksum"
+	"node/internal/dto/render"
+	"node/internal/util"
 	"sync"
 
 	"github.com/google/uuid"
@@ -15,10 +17,19 @@ type SceneMetadata struct {
 	ID           uuid.UUID         `json:"id"`
 }
 
+type RendererState struct {
+	Scene         SceneMetadata
+	Request       render.RenderRequest
+	CurrentFrame  int
+	FramePercent  float64
+	TimeElapsed   float64
+	TimeRemaining float64
+}
+
 type State struct {
-	Scene      *SceneMetadata
-	UploadLock sync.Mutex
-	RenderLock sync.Mutex
+	RendererState *RendererState
+	UploadLock    sync.Mutex
+	RenderLock    sync.Mutex
 }
 
 type Platform int
@@ -32,7 +43,7 @@ type AetherNode struct {
 	ID       uuid.UUID
 	Name     string
 	Port     uint16
-	Color    RGBColor
+	Color    util.RGBColor
 	State    State
 	Platform Platform
 }

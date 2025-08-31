@@ -6,7 +6,7 @@ import (
 	"io/fs"
 	"math"
 	"node/internal/config"
-	"node/internal/models"
+	"node/internal/dto/render"
 	"node/internal/state"
 	"node/internal/util"
 	"os"
@@ -16,11 +16,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/schollz/progressbar/v3"
 	"github.com/sirupsen/logrus"
 )
 
 // Decompress scene file into a new directory in the workspace
-func prepareWorkspace(cfg *config.NodeConfig, scene *state.SceneMetadata, req *models.RenderRequest) error {
+func prepareWorkspace(cfg *config.NodeConfig, scene *state.SceneMetadata, req *render.RenderRequest) error {
 	path := cfg.Data.WorkspaceDirectory + "/" + req.ID.String()
 
 	if info, err := os.Stat(path); err == nil {
@@ -77,8 +78,37 @@ func parseTime(s string) float64 {
 	return seconds
 }
 
+func parseBlenderOutput(line string, bar *progressbar.ProgressBar) (ok bool, frame int, elapsed float64, remaining float64, progress float64) {
+	progressRe := regexp.MustCompile(`Fra:(\d+).*Time:(\d+:\d+.\d+).*Remaining:(\d+:\d+.\d+)`)
+
+	matches := progressRe.FindStringSubmatch(line)
+
+	if len(matches) != 4 {
+		return false, -1, math.NaN(), math.NaN(), math.NaN()
+	}
+
+	currFrame, err := strconv.Atoi(matches[1])
+
+	if err != nil {
+		return false, -1, math.NaN(), math.NaN(), math.NaN()
+	}
+
+	timeElapsed := parseTime(matches[2])
+	timeRemaining := parseTime(matches[3])
+
+	if timeElapsed == math.NaN() || timeRemaining == math.NaN() {
+		return false, -1, math.NaN(), math.NaN(), math.NaN()
+	}
+
+	framePercent := (timeElapsed / (timeElapsed + timeRemaining)) * 100
+	bar.Set(int(framePercent))
+
+	return true, currFrame, timeElapsed, timeRemaining, framePercent
+}
+
 // TODO Write to history log!
-func invokeBlender(file string, aetherDir string, state *state.State, cfg *config.NodeConfig, req *models.RenderRequest) {
+func invokeBlender(file string, aetherDir string, state *state.State, cfg *config.NodeConfig, req *render.RenderRequest) {
+	// Mark the node as not busy once this function exits
 	defer state.RenderLock.Unlock()
 
 	cmd := exec.Command(
@@ -106,31 +136,22 @@ func invokeBlender(file string, aetherDir string, state *state.State, cfg *confi
 		return
 	}
 
-	progressRe := regexp.MustCompile(`Time:(\d+:\d+.\d+).*Remaining:(\d+:\d+.\d+)`)
 	scanner := bufio.NewScanner(stdout)
-
-	timeElapsed := math.NaN()
-	timeRemaining := math.NaN()
 
 	progressBar := util.SyntheticProgressBar(100, "BLEND")
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		matches := progressRe.FindStringSubmatch(line)
 
-		if len(matches) != 3 {
+		ok, frame, elapsed, remaining, progress := parseBlenderOutput(line, progressBar)
+		if !ok {
 			continue
 		}
 
-		timeElapsed = parseTime(matches[1])
-		timeRemaining = parseTime(matches[2])
-
-		if timeElapsed == math.NaN() || timeRemaining == math.NaN() {
-			continue
-		}
-
-		progress := (timeElapsed / (timeElapsed + timeRemaining)) * 100
-		progressBar.Set(int(progress))
+		state.RendererState.FramePercent = progress
+		state.RendererState.CurrentFrame = frame
+		state.RendererState.TimeElapsed = elapsed
+		state.RendererState.TimeRemaining = remaining
 	}
 
 	err = cmd.Wait()
@@ -139,10 +160,11 @@ func invokeBlender(file string, aetherDir string, state *state.State, cfg *confi
 		return
 	}
 
-	logrus.Debugf("Blender task finished successfully!")
+	state.RendererState = nil
+	logrus.Debugf("\nBlender task finished successfully!")
 }
 
-func findBlendFile(cfg *config.NodeConfig, req *models.RenderRequest) string {
+func findBlendFile(cfg *config.NodeConfig, req *render.RenderRequest) string {
 	var blendFile = ""
 	path := filepath.Join(cfg.Data.WorkspaceDirectory, req.ID.String())
 	err := filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
@@ -166,8 +188,8 @@ func findBlendFile(cfg *config.NodeConfig, req *models.RenderRequest) string {
 	return blendFile
 }
 
-func InitializeRenderProcess(cfg *config.NodeConfig, state *state.State, req *models.RenderRequest) error {
-	err := prepareWorkspace(cfg, state.Scene, req)
+func InitializeRenderProcess(cfg *config.NodeConfig, state *state.State, req *render.RenderRequest) error {
+	err := prepareWorkspace(cfg, &state.RendererState.Scene, req)
 	if err != nil {
 		return err
 	}

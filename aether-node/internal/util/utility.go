@@ -28,7 +28,7 @@ func ByteProgressBar(fileSize int64, description string) *progressbar.ProgressBa
 		progressbar.OptionSetWidth(50),
 		progressbar.OptionSetDescription("[cyan]"+description+"[reset]"),
 		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "[light_green]█[reset]",
+			Saucer:        "[light_blue]█[reset]",
 			SaucerPadding: "[reset]█",
 			BarStart:      "",
 			BarEnd:        "",
