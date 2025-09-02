@@ -4,20 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b396c37a-bdba-4cb2-897d-64b8a86526ec" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pkg/dtos/scenes_response.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/dtos/status_response.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../aetherd/internal/dto/dto.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/api/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/api/routes.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/dto/id/id_request.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/dtos/id_request.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/dto/progress/status_response.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/dto/render/render_request.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/dtos/render_request.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/dto/scenes/scenes_response.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/persistence/scene_index.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/persistence/scene_index.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/rendering/render_job.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/rendering/render_job.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/state/state.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/state/state.go" afterDir="false" />
-    </list>
+    <list default="true" id="b396c37a-bdba-4cb2-897d-64b8a86526ec" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

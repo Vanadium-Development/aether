@@ -1,6 +1,8 @@
 package server
 
 import (
+	"aetherd/internal/constants"
+	"aetherd/pkg/dtos"
 	"encoding/json"
 	"net"
 	"os"
@@ -8,23 +10,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const socketPath = "/tmp/aetherd.sock"
-
 func handleConnection(conn net.Conn) {
-	json.NewDecoder(conn)
+	var dto dtos.DaemonCommonDto
+	err := json.NewDecoder(conn).Decode(&dto)
+	if err != nil {
+		logrus.Errorf("Could not decode request json: %s\n", err)
+		return
+	}
 }
 
 func StartDaemonServer() {
-	_ = os.Remove(socketPath)
+	_ = os.Remove(constants.SocketPath)
 
-	listener, err := net.Listen("unix", socketPath)
+	listener, err := net.Listen("unix", constants.SocketPath)
 	if err != nil {
-		logrus.Fatalf("Could not open unix socket on %s: %s\n", socketPath, err)
+		logrus.Fatalf("Could not open unix socket on %s: %s\n", constants.SocketPath, err)
 		return
 	}
 	defer listener.Close()
 
-	logrus.Infof("Aether daemon listening on unix socket %s\n", socketPath)
+	logrus.Infof("Aether daemon listening on unix socket %s\n", constants.SocketPath)
 
 	for {
 		conn, err := listener.Accept()
