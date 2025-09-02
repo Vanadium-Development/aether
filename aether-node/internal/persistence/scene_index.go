@@ -5,6 +5,7 @@ import (
 	"node/internal/checksum"
 	"node/internal/config"
 	"node/internal/state"
+	"node/pkg/dtos"
 	"os"
 	"time"
 
@@ -18,14 +19,26 @@ type SceneIndex struct {
 	Scenes    []state.SceneMetadata `json:"scenes"`
 }
 
-func (store *SceneIndex) AddScene(scene state.SceneMetadata, cfg *config.NodeConfig) {
-	store.Scenes = append(store.Scenes, scene)
-	StoreIndex(cfg, store)
+func (index *SceneIndex) Dto() dtos.AetherSceneIndexDto {
+	var scenes []dtos.AetherSceneDto
+	for _, v := range index.Scenes {
+		scenes = append(scenes, dtos.AetherSceneDto{
+			CreatedAt:    v.CreatedAt,
+			ID:           v.ID,
+			OriginalName: v.OriginalName,
+		})
+	}
+	return dtos.AetherSceneIndexDto{Scenes: scenes}
 }
 
-func (store *SceneIndex) FindSceneByChecksum(checksum checksum.Checksum) *state.SceneMetadata {
-	for i := range store.Scenes {
-		scene := store.Scenes[i]
+func (index *SceneIndex) AddScene(scene state.SceneMetadata, cfg *config.NodeConfig) {
+	index.Scenes = append(index.Scenes, scene)
+	StoreIndex(cfg, index)
+}
+
+func (index *SceneIndex) FindSceneByChecksum(checksum checksum.Checksum) *state.SceneMetadata {
+	for i := range index.Scenes {
+		scene := index.Scenes[i]
 		if scene.Checksum.IsSame(&checksum) {
 			return &scene
 		}
@@ -34,9 +47,9 @@ func (store *SceneIndex) FindSceneByChecksum(checksum checksum.Checksum) *state.
 	return nil
 }
 
-func (store *SceneIndex) FindSceneById(id uuid.UUID) *state.SceneMetadata {
-	for i := range store.Scenes {
-		scene := store.Scenes[i]
+func (index *SceneIndex) FindSceneById(id uuid.UUID) *state.SceneMetadata {
+	for i := range index.Scenes {
+		scene := index.Scenes[i]
 		if scene.ID == id {
 			return &scene
 		}
@@ -45,7 +58,7 @@ func (store *SceneIndex) FindSceneById(id uuid.UUID) *state.SceneMetadata {
 	return nil
 }
 
-func (store *SceneIndex) EnsureSceneIndex(cfg *config.NodeConfig) bool {
+func (index *SceneIndex) EnsureSceneIndex(cfg *config.NodeConfig) bool {
 	_, err := os.Stat(cfg.Data.SceneIndex)
 	if err == nil {
 		return false
@@ -60,7 +73,7 @@ func (store *SceneIndex) EnsureSceneIndex(cfg *config.NodeConfig) bool {
 	}
 
 	logrus.Infof("Created scene index file \"%s\".\n", cfg.Data.SceneIndex)
-	StoreIndex(cfg, store)
+	StoreIndex(cfg, index)
 
 	return true
 }

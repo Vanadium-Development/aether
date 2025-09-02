@@ -5,15 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b396c37a-bdba-4cb2-897d-64b8a86526ec" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/internal/dto/id/id_request.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/dto/scenes/scenes_response.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/dtos/scenes_response.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/dtos/status_response.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../aetherd/internal/dto/dto.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.toml" beforeDir="false" afterPath="$PROJECT_DIR$/config.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/api/api.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/api/api.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/api/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/api/routes.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/config/config.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/dto/id/id_request.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/dtos/id_request.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/dto/progress/status_response.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/dto/render/render_request.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/dtos/render_request.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/dto/scenes/scenes_response.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/persistence/scene_index.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/persistence/scene_index.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/rendering/render_job.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/rendering/render_job.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/util/utility.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/util/utility.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/state/state.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/state/state.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,39 +42,39 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Go Build.Aether Node.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build aether-node (1).executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build aether-node.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build node/cmd/aether.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.GoLinterPluginOnboarding&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/node&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/piotrwyrw&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;/Users/piotrwyrw/GolandProjects/aether/aether-node/main.go&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Go Build.Aether Node.executor": "Run",
+    "Go Build.go build aether-node (1).executor": "Run",
+    "Go Build.go build aether-node.executor": "Run",
+    "Go Build.go build node/cmd/aether.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.GoLinterPluginOnboarding": "true",
+    "RunOnceActivity.GoLinterPluginStorageMigration": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "git-widget-placeholder": "feature/daemon",
+    "go.import.settings.migrated": "true",
+    "last_opened_file_path": "/Users/piotrwyrw",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "/Users/piotrwyrw/GolandProjects/aether/aether-node/main.go",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/pkg/dto" />
+      <recent name="$PROJECT_DIR$/pkg" />
       <recent name="$PROJECT_DIR$/internal/util" />
       <recent name="$PROJECT_DIR$/internal/dto/render" />
       <recent name="$PROJECT_DIR$/internal/dto/progress" />
-      <recent name="$PROJECT_DIR$/internal/state" />
-      <recent name="$PROJECT_DIR$/internal/node" />
     </key>
   </component>
   <component name="RunManager">

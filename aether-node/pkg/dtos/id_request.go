@@ -1,7 +1,7 @@
-package id
+package dtos
 
 import "github.com/google/uuid"
 
-type IDRequest struct {
+type AetherIdDto struct {
 	ID uuid.UUID `json:"id"`
 }

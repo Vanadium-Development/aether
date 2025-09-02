@@ -2,8 +2,8 @@ package state
 
 import (
 	"node/internal/checksum"
-	"node/internal/dto/render"
 	"node/internal/util"
+	"node/pkg/dtos"
 	"sync"
 
 	"github.com/google/uuid"
@@ -19,7 +19,7 @@ type SceneMetadata struct {
 
 type RendererState struct {
 	Scene         SceneMetadata
-	Request       render.RenderRequest
+	Request       dtos.AetherRenderDto
 	CurrentFrame  int
 	FramePercent  float64
 	TimeElapsed   float64
@@ -46,6 +46,24 @@ type AetherNode struct {
 	Color    util.RGBColor
 	State    State
 	Platform Platform
+}
+
+func (state *RendererState) StatusDto() dtos.AetherStatusDto {
+	if state == nil {
+		return dtos.EmptyStatusResponse()
+	}
+
+	return dtos.AetherStatusDto{
+		IsRendering: true,
+		Request:     &state.Request,
+		Progress: &dtos.AetherRenderProgressDto{
+			CurrentFrame:  state.CurrentFrame,
+			FramePercent:  state.FramePercent,
+			FrameCount:    int(*state.Request.FrameEnd-*state.Request.FrameStart) + 1,
+			TimeElapsed:   state.TimeElapsed,
+			TimeRemaining: state.TimeRemaining,
+		},
+	}
 }
 
 func (node *AetherNode) NodeInfoMap() map[string]interface{} {

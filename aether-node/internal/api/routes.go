@@ -7,15 +7,12 @@ import (
 	"net/http"
 	"node/internal/banner"
 	"node/internal/config"
-	"node/internal/dto/id"
-	"node/internal/dto/progress"
-	"node/internal/dto/render"
-	"node/internal/dto/scenes"
 	"node/internal/persistence"
 	"node/internal/rendering"
 	"node/internal/state"
 	"node/internal/util"
 	"node/internal/version"
+	"node/pkg/dtos"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -80,7 +77,7 @@ func (ctx *RouteCtx) getInfoHandler(writer http.ResponseWriter, req *http.Reques
 // Retrieve a list of scenes stored in the scene index
 func (ctx *RouteCtx) getScenesHandler(writer http.ResponseWriter, req *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(writer).Encode(scenes.SceneIndexResponseFromIndex(&ctx.SceneStore))
+	json.NewEncoder(writer).Encode(ctx.SceneStore.Dto())
 }
 
 // Upload compressed scene file and store it in the scene index
@@ -155,7 +152,7 @@ func (ctx *RouteCtx) postRenderHandler(writer http.ResponseWriter, req *http.Req
 		return
 	}
 
-	var request render.RenderRequest
+	var request dtos.AetherRenderDto
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		http.Error(writer, "Could not parse JSON render request", http.StatusBadRequest)
 		logrus.Debugf("Could not parse JSON render request: %s\n", err)
@@ -219,13 +216,13 @@ func (ctx *RouteCtx) postRenderHandler(writer http.ResponseWriter, req *http.Req
 func (ctx *RouteCtx) getStatusHandler(writer http.ResponseWriter, req *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
 	renderState := ctx.Node.State.RendererState
-	_ = json.NewEncoder(writer).Encode(progress.StatusResponseFromRenderState(renderState))
+	_ = json.NewEncoder(writer).Encode(renderState.StatusDto())
 	return
 }
 
 // Retrieve the last render result of a given scene
 func (ctx *RouteCtx) getRenderResult(writer http.ResponseWriter, req *http.Request) {
-	var request id.IDRequest
+	var request dtos.AetherIdDto
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		http.Error(writer, "Could not parse JSON request", http.StatusBadRequest)

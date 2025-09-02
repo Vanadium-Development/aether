@@ -6,9 +6,9 @@ import (
 	"io/fs"
 	"math"
 	"node/internal/config"
-	"node/internal/dto/render"
 	"node/internal/state"
 	"node/internal/util"
+	"node/pkg/dtos"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -21,7 +21,7 @@ import (
 )
 
 // Decompress scene file into a new directory in the workspace
-func prepareWorkspace(cfg *config.NodeConfig, scene *state.SceneMetadata, req *render.RenderRequest) error {
+func prepareWorkspace(cfg *config.NodeConfig, scene *state.SceneMetadata, req *dtos.AetherRenderDto) error {
 	path := cfg.Data.WorkspaceDirectory + "/" + req.ID.String()
 
 	if info, err := os.Stat(path); err == nil {
@@ -105,7 +105,7 @@ func parseBlenderOutput(line string) (ok bool, frame int, elapsed float64, remai
 	return true, currFrame, timeElapsed, timeRemaining, framePercent
 }
 
-func collectResults(cfg *config.NodeConfig, aetherDir string, req *render.RenderRequest) error {
+func collectResults(cfg *config.NodeConfig, aetherDir string, req *dtos.AetherRenderDto) error {
 	dst := filepath.Join(cfg.Data.OutputDirectory, req.ID.String()+".zip")
 
 	// Remove previous results file
@@ -130,7 +130,7 @@ func collectResults(cfg *config.NodeConfig, aetherDir string, req *render.Render
 	return nil
 }
 
-func invokeBlender(file string, aetherDir string, state *state.State, cfg *config.NodeConfig, req *render.RenderRequest) {
+func invokeBlender(file string, aetherDir string, state *state.State, cfg *config.NodeConfig, req *dtos.AetherRenderDto) {
 	// Mark the node as not busy once this function exits
 	defer state.RenderLock.Unlock()
 
@@ -215,7 +215,7 @@ func invokeBlender(file string, aetherDir string, state *state.State, cfg *confi
 	logrus.Infof("Task completed successfully.")
 }
 
-func findBlendFile(cfg *config.NodeConfig, req *render.RenderRequest) string {
+func findBlendFile(cfg *config.NodeConfig, req *dtos.AetherRenderDto) string {
 	var blendFile = ""
 	path := filepath.Join(cfg.Data.WorkspaceDirectory, req.ID.String())
 	err := filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
@@ -239,7 +239,7 @@ func findBlendFile(cfg *config.NodeConfig, req *render.RenderRequest) string {
 	return blendFile
 }
 
-func InitializeRenderProcess(cfg *config.NodeConfig, state *state.State, req *render.RenderRequest) error {
+func InitializeRenderProcess(cfg *config.NodeConfig, state *state.State, req *dtos.AetherRenderDto) error {
 	err := prepareWorkspace(cfg, &state.RendererState.Scene, req)
 	if err != nil {
 		return err
